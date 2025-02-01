@@ -1,0 +1,30 @@
+{
+    "manifest_version": 3,
+    "name": "Common stores for skroutz.gr",
+    "version": "1.0",
+    "description": "Βρες κοινά καταστήματα σε δύο ή περισσότερα προϊόντα στο skroutz.gr",
+    "permissions": ["storage", "nativeMessaging", "tabs"],
+  
+    "action": {
+      "default_icon": "assets/shopping-cart.png",
+      "default_popup": "popup.html"
+    },
+    "icons": {
+      "16": "assets/shopping-cart.png",
+      "48": "assets/shopping-cart.png",
+      "128": "assets/shopping-cart.png"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://www.skroutz.gr/*"],
+        "js": ["content.js"]
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["assets/add2.png"],
+        "matches": ["https://www.skroutz.gr/*"]
+      }
+    ]
+  }
+  
