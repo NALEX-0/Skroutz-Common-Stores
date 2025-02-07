@@ -16,7 +16,7 @@
     },
     "content_scripts": [
       {
-        "matches": ["https://www.skroutz.gr/*"],
+        "matches": ["https://www.skroutz.gr/s/*"],
         "js": ["content.js"]
       }
     ],
