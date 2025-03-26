@@ -1,6 +1,6 @@
 # Skroutz Common Stores Extension
 
-This Chrome extension helps you find **common stores** across two or more products on [skroutz.gr](https://www.skroutz.gr). It highlights stores that appear in all selected product listings, making price comparisons faster and easier.
+This Chrome extension helps you find **common stores** across two or more products on [skroutz.gr](https://www.skroutz.gr). It highlights stores that appear in all selected product listings.
 
 
 
