@@ -29,7 +29,7 @@ This Chrome extension helps you find **common stores** across two or more produc
 4. **Click "Load unpacked"** and select the project folder you just cloned.
 
 5. **Visit a product page on** [skroutz.gr](https://www.skroutz.gr)  
-   and click the `+` button that appears to add products.
+   and click the `+` button that appears on the bottom-left corner, to add products.
 
 6. **Click the extension icon** in your Chrome toolbar to view your saved products and find common stores.
 
