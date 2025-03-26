@@ -1,16 +1,29 @@
 /********************************************************
- * Description
+ * content.js
  * 
- */
+ * Content script injected into product pages on skroutz.gr
+ * 
+ * Responsibilities:
+ * - Extracts product title, product code, and store IDs from the current page.
+ * - Saves product information to Chrome's sync storage.
+ * - Adds an add button to allow users to add a product to the extension.
+ * - Listens for messages from the popup to highlight common stores on the page.
+ * 
+ * Interacts with:
+ * - popup.js (for messaging)
+ * - chrome.storage.sync (for data persistence)
+ * 
+ * Notes:
+ * - Behavior is scoped only to pages matching: https://www.skroutz.gr/s/*
+ ********************************************************/
 
 (() => {
   /**
-   * Find product title and product store IDs to send them in popup using chrome storage
+   * Collect product title and product store IDs to send them in popup using chrome synced storage.
    */
   function getLiElementIdsListener() {
     const storesList = document.getElementsByClassName("js-product-card");
     var productName = document.getElementsByClassName("page-title")[0];
-
     productName = productName.innerText;
     
     if (storesList && productName) {
@@ -20,9 +33,6 @@
       var match = productName.match(codeRegularExpression);
       var productCode = match ? match[1] : null;
       var productTitle = productName.replace(codeRegularExpression, '').trim();
-
-      console.log(productCode);
-      console.log(productTitle);
       
       chrome.storage.sync.set({ [productCode]: [productTitle, storeIDs] });
       /** 
@@ -33,7 +43,7 @@
   }
 
   /**
-   * Adds the Add button to skroutz page
+   * Injects the add button to skroutz.gr page.
    */
   const addButtonToUserActions = async () => {
     const myAddBtn = document.getElementsByClassName("my-add-btn")[0];
@@ -66,69 +76,64 @@
 
       document.body.appendChild(addBtn);
       
-      // addBtn.addEventListener("mouseover", () => {
-      //   addBtn.style.backgroundColor = "#ececec"; 
-      // });
-      // addBtn.addEventListener("mouseout", () => {
-      //   addBtn.style.backgroundColor = "transparent"; 
-      // });
-      // addBtn.addEventListener("mousedown", () => {
-      //   addBtn.style.backgroundColor = "#d3d3d3"; 
-      // });
-      // addBtn.addEventListener("mouseup", () => {
-      //   addBtn.style.backgroundColor = "transparent"; 
-      // });
+      addBtn.addEventListener("mouseover", () => {
+        addBtn.style.backgroundColor = "rgb(255 158 63)"; 
+      });
+      addBtn.addEventListener("mouseout", () => {
+        addBtn.style.backgroundColor = "#f28c28"; 
+      });
+      addBtn.addEventListener("mousedown", () => {
+        addBtn.style.backgroundColor = "#d3d3d3"; 
+      });
+      addBtn.addEventListener("mouseup", () => {
+        addBtn.style.backgroundColor = "#f28c28"; 
+      });
 
       addBtn.addEventListener("click", getLiElementIdsListener);
     }
   };
 
   /**
-   * Locates common stores and marks them with light-blue background color
-   * @param {*} storeID ToDo:
-   * @param {*} titles 
+   * Highlights common store elements and marks them with light-blue background color.
+   * 
+   * @param {string[]} storeIDs - Array of store element IDs that are common across all products.
+   * @param {string[]} titles - Array of product titles.
    */
-  const locateStore = (storeID, titles) => {
-    var productName = document.getElementsByClassName("page-title")[0];
-    productName = productName.innerText;
-    var codeRegex = /Κωδικός: (.+)$/;
-    var productTitle = productName.replace(codeRegex, '').trim();
+  const locateStore = (storeIDs, titles) => {
+    storeCounter = 0;
+    var productNameElement = document.getElementsByClassName("page-title")[0];
+
+    var productName = productNameElement.innerText;
+    var codeRegularExpression = /Κωδικός Skroutz:\s*(\d+)$/;
+    var productTitle = productName.replace(codeRegularExpression, '').trim();
     
-    if (titles.some(name => name.includes(productTitle))) { // Check if we are in a product page, of the products we check for similar stores
+    if (titles.some(name => name.includes(productTitle))) { 
       const olElement = document.getElementById('prices');
       if (olElement) {
-        const liElement = olElement.querySelectorAll('li');
-        liElement.forEach(li => {
-          // if (li.id === store_id) {
-          if (storeID.includes(li.id)) {
+        const liElements = olElement.querySelectorAll('li');
+        liElements.forEach(li => {
+          if (storeIDs.includes(li.id)) {
             li.style.backgroundColor = "#aad3f4";
+            storeCounter += 1;
           }
         });
       }
     }
-
   };
   
   addButtonToUserActions();
 
-  // Locate common stores in the current page
+  /**
+   * Listens for messages sent from the popup.
+   * When a "store" message is received, it calls locateStore()
+   * 
+   */
   chrome.runtime.onMessage.addListener((object, sender, response) => {
     const { type, stores, titles } = object;
     if (type === "store") {
       locateStore(stores, titles);
     }
-  });
-  
-  // chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  //   console.log("ok1");
-  //     if (request.type === 'store') {
-  //       console.log("ok2");
-  //       locateStore(request.value);
-  //       console.log("ok3");
-  //       // const productInfo = addButtonToUserActions();
-  //       // sendResponse({ productInfo });
-  //     }
-  // });
 
+  });
 
 })();
